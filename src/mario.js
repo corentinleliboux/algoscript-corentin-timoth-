@@ -19,10 +19,18 @@ const MAP = 'map1.txt';
  * @type Number
  */
 const BLOC_WIDTH = 20;
+/**
+ * hauteur d'un bloc a l'écran
+ * @type Number
+ */
 const BLOC_HEIGHT = 20;
 const KEY_UP = 38;
 const KEY_LEFT = 37;
 const KEY_RIGHT = 39;
+/**
+ * gravité du personnage
+ * @type Number
+ */
 const GRAVITY = 700;
 //</editor-fold>
 
