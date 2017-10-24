@@ -57,7 +57,7 @@ var bloc = {
     'B' : 'http://oi48.tinypic.com/30my7tx.jpg',
     't' : 'http://www.clker.com/cliparts/T/R/h/S/4/i/a-green-cartoon-pipe-hi.png',
     'c' : 'https://t7.rbxcdn.com/b885beb8ed89feb035643aff4785115f',
-    '_' : 'http://oi48.tinypic.com/30my7tx.jpg'
+    '_' : 'https://t3.rbxcdn.com/1977bb7bbfc6b959cf6556daf6381793'
 };
 /**
  * Les differentes representations de mario
