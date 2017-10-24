@@ -97,7 +97,10 @@ var isMarioTomber = false;
  * @type Array
  */
 var tableau_map;
+
 var positionX = 0;
+
+var positionY = 0
 //</editor-fold>
 
 //<editor-fold defaultstate="collapsed" desc="Fonctions">
@@ -168,17 +171,19 @@ function faireTomberMario(temps, tableau_map) {
     return true;
 }
 function bougerMario () {
-    var y = HAUTEUR_MAP - 13;
+    var y = HAUTEUR_MAP * BLOC_HEIGHT - (BLOC_HEIGHT*2) + positionY; // positiony sert au cas ou le personnage n'es pas au sol
     window.onkeydown = function (e) {
      var key = e.keyCode || e.which;
      
      switch (key) {
         case KEY_RIGHT:
+            DrawImage(bloc['~'], positionX, y, BLOC_WIDTH, BLOC_HEIGHT);            
             positionX = positionX + 10;
             DrawImage(mario['petit'], positionX, y, BLOC_WIDTH, BLOC_HEIGHT);
             break;
             
         case KEY_LEFT:
+            DrawImage(bloc['~'], positionX, y, BLOC_WIDTH, BLOC_HEIGHT);
             positionX = positionX - 10;
             DrawImage(mario['petitgauche'], positionX, y, BLOC_WIDTH, BLOC_HEIGHT);
             break;
