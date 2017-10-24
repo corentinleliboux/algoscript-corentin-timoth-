@@ -65,7 +65,9 @@ var bloc = {
  */
 var mario = {
     'petit' : 'https://vignette.wikia.nocookie.net/mario/images/3/32/8_Bit_Mario.png/revision/latest?cb=20120602231304',
+    'petitgauche' : 'https://t3.rbxcdn.com/fcedf49f6eaf2176e2f788e568304f57',
     'petit_saute' : 'https://i.pinimg.com/originals/36/26/24/362624d9b105d5af3a0c3751659553e1.png',
+    'petit_saute_gauche' : 'https://s-media-cache-ak0.pinimg.com/originals/58/cb/b4/58cbb4afc462d0002f802dc11c7f040a.jpg',
     'grand' : 'http://img4.wikia.nocookie.net/__cb20130907061200/lawl-stadium/images/4/4d/8-Bit_Mario.png',
     'grand_saute' : 'http://www.thevideogamegallery.com/data/thumbs/790px/0021/tVGG_21561.jpg'
 };
@@ -95,6 +97,7 @@ var isMarioTomber = false;
  * @type Array
  */
 var tableau_map;
+var positionX = 0;
 //</editor-fold>
 
 //<editor-fold defaultstate="collapsed" desc="Fonctions">
@@ -165,18 +168,19 @@ function faireTomberMario(temps, tableau_map) {
     return true;
 }
 function bougerMario () {
-  window.onkeydown = function (e) {
+    var y = HAUTEUR_MAP - 13;
+    window.onkeydown = function (e) {
      var key = e.keyCode || e.which;
-     var x = 0, y = (HAUTEUR_MAP - 1) / BLOC_HEIGHT;
+     
      switch (key) {
         case KEY_RIGHT:
-            x = x+1;
-            DrawImage(mario['petit'],x, y, BLOC_WIDTH, BLOC_HEIGHT);
+            positionX = positionX + 10;
+            DrawImage(mario['petit'], positionX, y, BLOC_WIDTH, BLOC_HEIGHT);
             break;
             
         case KEY_LEFT:
-            x = x-1;
-            DrawImage(mario['petit'],x, y, BLOC_WIDTH, BLOC_HEIGHT);
+            positionX = positionX - 10;
+            DrawImage(mario['petitgauche'], positionX, y, BLOC_WIDTH, BLOC_HEIGHT);
             break;
         
         default:
@@ -184,7 +188,6 @@ function bougerMario () {
             break;
     }
   };
-  
 }
 //</editor-fold>
 
@@ -211,6 +214,8 @@ function draw() {
     //console.log(tps);
     if (!isMarioTomber) {
         isMarioTomber = faireTomberMario(tps, tableau_map);
+    } else {
+        bougerMario ();
     }
     
 }
