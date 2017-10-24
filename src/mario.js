@@ -50,7 +50,7 @@ var cellule_vide = "~";
  * @type Array
  */
 var bloc = {
-    '~' : '',
+    '~' : 'http://www.annliz-bonin.com/wp-content/uploads/2017/05/carre%CC%81-blanc-300x300.png',
     '?' : 'https://t6.rbxcdn.com/5da98730977895279f05af2eb7bd7516',
     'b' : 'https://s3.amazonaws.com/spoonflower/public/design_thumbnails/0396/3573/rbricks_large_shop_preview.png',
     '0' : 'https://t6.rbxcdn.com/5da98730977895279f05af2eb7bd7516',
@@ -152,15 +152,39 @@ function afficherMap(tableau, zone) {
  * @returns {boolean} False si mario est en vol, True s'il a atteint le sol
  */
 function faireTomberMario(temps, tableau_map) {
-    var y = GRAVITY * temps * temps / 2;
+    var y = GRAVITY * temps * (temps / 2);
     var ligne = Math.round(y / BLOC_HEIGHT); // Math.round retourne la valeur d'un nombre arrondi à l'entier le plus proche.
-
+            
     if (tableau_map[ligne][0] === cellule_vide) {
+        DrawImage(bloc['~'], 0, 0, BLOC_WIDTH, BLOC_HEIGHT * (HAUTEUR_MAP - 1));
         DrawImage(mario['petit'],0, y, BLOC_WIDTH, BLOC_HEIGHT);
+        
         return false;
     }
 
     return true;
+}
+function bougerMario () {
+  window.onkeydown = function (e) {
+     var key = e.keyCode || e.which;
+     var x = 0, y = (HAUTEUR_MAP - 1) / BLOC_HEIGHT;
+     switch (key) {
+        case KEY_RIGHT:
+            x = x+1;
+            DrawImage(mario['petit'],x, y, BLOC_WIDTH, BLOC_HEIGHT);
+            break;
+            
+        case KEY_LEFT:
+            x = x-1;
+            DrawImage(mario['petit'],x, y, BLOC_WIDTH, BLOC_HEIGHT);
+            break;
+        
+        default:
+            
+            break;
+    }
+  };
+  
 }
 //</editor-fold>
 
