@@ -105,8 +105,16 @@ const NB_VIE_MARIO = 3;
  * @type Boolean
  */
 turtleEnabled = false;
-
+/**
+ * démarre le jeu ou change de map
+ * @type Boolean
+ */
 var start_game = true;
+/**
+ * lorsque mario n'a plus de vie game_over renvoie true
+ * @returns Boolean
+ */
+var game_over = false;
 /**
  * Indicateur de présence du son
  * @type Boolean
@@ -395,10 +403,10 @@ var change_niveau = false;
  */
 var etape_chgt_niveau = "initiale";
 /**
- * Durée d'attente entre chaque étape
+ * mémorisation de l'instant initial
  * @type int
  */
-var dureeAttente = Date.now();
+var instant_initial = Date.now();
 /**
  * nombre de vie restante de mario dans une partie
  * @type Int
@@ -682,6 +690,7 @@ function interactionMarioPersonnages() {
                         nbVieRestante--;
                         
                         playNewSound(musique_vie_perdue);
+                        isGameOver();
                         break;
                         
                     case "p":
@@ -954,6 +963,7 @@ function setMarioLigneColonne() {
         nbVieRestante--;
         
         playNewSound(musique_vie_perdue);
+        isGameOver();
     }
 
     if (mario_sg_colonne < 0) { // sortie de map à gauche
@@ -992,11 +1002,12 @@ function setMarioLigneColonne() {
 
             // changement de map
             num_map++;
+            nbVieRestante++;
             // on recommence au départ si on atteint la dernière map
             if (num_map >= maps.length) {
                 num_map = 0;
                 start_game = true;
-                dureeAttente = Date.now();
+                instant_initial = Date.now();
             } else {
                 change_niveau = true;
             }
@@ -1176,6 +1187,9 @@ function showInformation() {
         Texte(10 * BLOC_WIDTH, (HAUTEUR_MAP + 8) * BLOC_HEIGHT, "isMarioSautParabolique = " + isMarioSautParabolique, "black");
         Texte(0, (HAUTEUR_MAP + 9) * BLOC_HEIGHT, "top_depart_chute_mario = " + top_depart_chute_mario, "black");
         Texte(10 * BLOC_WIDTH, (HAUTEUR_MAP + 9) * BLOC_HEIGHT, "initialiser_saut_mario = " + initialiser_saut_mario, "black");
+    } else {
+        RectanglePlein(0, (HAUTEUR_MAP + 1) * BLOC_HEIGHT, 20 * BLOC_WIDTH, 8 * BLOC_HEIGHT, 'yellow');
+        Texte(0, (HAUTEUR_MAP + 2) * BLOC_HEIGHT, "nombre de vies=" + nbVieRestante, "black");
     }
 }
 
@@ -1196,8 +1210,13 @@ function loadGameLevel() {
     afficherMap(tableau_map, zone_map);
 }
 
-function gameOver() {
-    
+function isGameOver() {
+    if(nbVieRestante < 1) {
+        num_map = 0;
+        game_over = true;
+        nbVieRestante = NB_VIE_MARIO;
+        instant_initial = Date.now();
+    }
 }
 //</editor-fold>
 
@@ -1215,11 +1234,11 @@ function setup() {
 function draw() {
 
     if (start_game) { // démarrage du jeu
-        if (Date.now() - dureeAttente < 200) {
+        if (Date.now() - instant_initial < 200) {
             Effacer();
             DrawImage(images["deco"], 14 * BLOC_WIDTH, 0, 22 * BLOC_WIDTH, 22 * BLOC_HEIGHT);
         }
-        if (Date.now() - dureeAttente > 2000) {
+        if (Date.now() - instant_initial > 2000) {
             start_game = false;
             loadGameLevel();
         }
@@ -1229,18 +1248,18 @@ function draw() {
                 Effacer();
                 DrawImage(images["winner"], 17 * BLOC_WIDTH, 0, 14 * BLOC_WIDTH, 14 * BLOC_HEIGHT);
                 etape_chgt_niveau = "suivante";
-                dureeAttente = Date.now();
+                instant_initial = Date.now();
                 break;
             case "suivante":
-                if (Date.now() - dureeAttente > 1000 * musique_fin_niveau.duration / 2) {
+                if (Date.now() - instant_initial > 1000 * musique_fin_niveau.duration / 2) {
                     Effacer();
                     DrawImage(images["level"],15 * BLOC_WIDTH , 2 * BLOC_HEIGHT, 20 * BLOC_WIDTH, 10 * BLOC_HEIGHT);
                     etape_chgt_niveau = "finale";
-                    dureeAttente = Date.now();
+                    instant_initial = Date.now();
                 }
                 break;
             case "finale":
-                if (Date.now() - dureeAttente > 1000 * musique_fin_niveau.duration / 2) {
+                if (Date.now() - instant_initial > 1000 * musique_fin_niveau.duration / 2) {
                     // initialisation du jeu
                     loadGameLevel();
                     change_niveau = false;
@@ -1250,6 +1269,16 @@ function draw() {
             default:
 
                 break;
+        }
+    } else if(game_over) {
+        if (Date.now() - instant_initial < 200) {
+            Effacer();
+            DrawImage(images["level"], 14 * BLOC_WIDTH, 0, 22 * BLOC_WIDTH, 22 * BLOC_HEIGHT);
+        }
+        if (Date.now() - instant_initial > 2000) {
+            game_over = false;
+            start_game = true;
+            instant_initial = Date.now();
         }
     } else { // ici on joue !
         if (changeMap) {
