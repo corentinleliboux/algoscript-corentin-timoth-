@@ -1196,8 +1196,9 @@ function showInformation() {
         Texte(0, (HAUTEUR_MAP + 9) * BLOC_HEIGHT, "top_depart_chute_mario = " + top_depart_chute_mario, "black");
         Texte(10 * BLOC_WIDTH, (HAUTEUR_MAP + 9) * BLOC_HEIGHT, "initialiser_saut_mario = " + initialiser_saut_mario, "black");
     } else {
-        RectanglePlein(0, (HAUTEUR_MAP + 1) * BLOC_HEIGHT, 20 * BLOC_WIDTH, 8 * BLOC_HEIGHT, 'yellow');
-        Texte(0, (HAUTEUR_MAP + 2) * BLOC_HEIGHT, "nombre de vies=" + nbVieRestante, "black");
+        DrawImage(images["vie"], 0, (HAUTEUR_MAP + 2) * BLOC_HEIGHT, 2 * BLOC_WIDTH, 2 * BLOC_HEIGHT);
+        setCanvasFont('times', '30pt', 'bold');
+        Texte(2 * BLOC_WIDTH + 1, (HAUTEUR_MAP + 4) * BLOC_HEIGHT, "X" + nbVieRestante, "black");
     }
 }
 
@@ -1284,7 +1285,7 @@ function draw() {
             DrawImage(images["game_over"], 14 * BLOC_WIDTH, 0, 30 * BLOC_WIDTH, 22 * BLOC_HEIGHT);
             playNewSound(musique_game_over);
         }
-        if (Date.now() - instant_initial > 4000) {
+        if (Date.now() - instant_initial > 4000) {// 4000 car c'est la durée du son
             game_over = false;
             start_game = true;
             instant_initial = Date.now();           
