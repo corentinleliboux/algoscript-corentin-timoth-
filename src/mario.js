@@ -174,17 +174,23 @@ function bougerMario () {
     var y = HAUTEUR_MAP * BLOC_HEIGHT - (BLOC_HEIGHT*2) + positionY; // positiony sert au cas ou le personnage n'es pas au sol
     window.onkeydown = function (e) {
      var key = e.keyCode || e.which;
-     
      switch (key) {
         case KEY_RIGHT:
-            DrawImage(bloc['~'], positionX, y, BLOC_WIDTH, BLOC_HEIGHT);            
-            positionX = positionX + 10;
+            if (positionX === bloc['~']){
+            DrawImage(bloc['~'], positionX, y, BLOC_WIDTH, BLOC_HEIGHT);
+            
             DrawImage(mario['petit'], positionX, y, BLOC_WIDTH, BLOC_HEIGHT);
+            }
+            else{
+            DrawImage(bloc['~'], positionX, y, BLOC_WIDTH, BLOC_HEIGHT);
+            positionX = positionX + 20;
+            DrawImage(mario['petit'], positionX, y, BLOC_WIDTH, BLOC_HEIGHT);
+        }
             break;
             
         case KEY_LEFT:
             DrawImage(bloc['~'], positionX, y, BLOC_WIDTH, BLOC_HEIGHT);
-            positionX = positionX - 10;
+            positionX = positionX - 20;
             DrawImage(mario['petitgauche'], positionX, y, BLOC_WIDTH, BLOC_HEIGHT);
             break;
         
