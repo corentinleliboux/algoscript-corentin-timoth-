@@ -196,7 +196,7 @@ var bloc = {
     '8' : 'http://olivier.leliboux.free.fr/mario/img/logo_1_1.png',
     'c' : 'http://olivier.leliboux.free.fr/mario/img/champignon.png', // champignon
     '_' : 'http://olivier.leliboux.free.fr/mario/img/sol.png', // sol
-    'p' : 'http://olivier.leliboux.free.fr/mario/img/piece_or.png' // piece d'or
+    'p' : 'http://olivier.leliboux.free.fr/mario/img/piece_or.jpg' // piece d'or
 };
 /**
  * Images du jeu
@@ -207,7 +207,8 @@ var images = {
     'winner' : 'http://olivier.leliboux.free.fr/mario/img/1up.jpg', // fin de niveau
     'level' : 'http://olivier.leliboux.free.fr/mario/img/level.jpg', // nouveau niveau
     'game_over' : 'http://olivier.leliboux.free.fr/mario/img/game_over.png', //game over = 0 vies
-    'vie' : 'http://olivier.leliboux.free.fr/mario/img/coeur.jpg' // image du coeur pour les vies
+    'vie' : 'http://olivier.leliboux.free.fr/mario/img/coeur.jpg', // image du coeur pour les vies
+    'piece' : 'http://olivier.leliboux.free.fr/mario/img/piece_or.jpg'
 };
 /**
  * Les differentes representations de mario
@@ -414,6 +415,8 @@ var instant_initial = Date.now();
  * @type Int
  */
 var nbVieRestante = NB_VIE_MARIO;
+
+var nb_piece = 0;
 //</editor-fold>
 
 //<editor-fold defaultstate="collapsed" desc="Fonctions">
@@ -702,7 +705,7 @@ function interactionMarioPersonnages() {
                         // Il faut obligatoirement une autre image. On a créé une image très
                         // lègèrement grisée. On ne voit aucune différence à l'oeil nu.
                         DrawImage(bloc['~~'], leperso["sg_x"], leperso["sg_y"], BLOC_WIDTH, BLOC_HEIGHT);
-                        // todo : compter points
+                        ramasser_piece();
                         //playNewSound(musique_piece_or);
                         // bidouille : sans le timeout, mario ne s'affiche pas !
                         setTimeout(function(){ afficherMario(); }, 50);
@@ -1196,9 +1199,15 @@ function showInformation() {
         Texte(0, (HAUTEUR_MAP + 9) * BLOC_HEIGHT, "top_depart_chute_mario = " + top_depart_chute_mario, "black");
         Texte(10 * BLOC_WIDTH, (HAUTEUR_MAP + 9) * BLOC_HEIGHT, "initialiser_saut_mario = " + initialiser_saut_mario, "black");
     } else {
+        //affiche le nombre de vies
+        RectanglePlein(2 * BLOC_WIDTH + 1, (HAUTEUR_MAP + 2) * BLOC_HEIGHT, 5 * BLOC_WIDTH, 2 * BLOC_HEIGHT, 'white');
         DrawImage(images["vie"], 0, (HAUTEUR_MAP + 2) * BLOC_HEIGHT, 2 * BLOC_WIDTH, 2 * BLOC_HEIGHT);
         setCanvasFont('times', '30pt', 'bold');
         Texte(2 * BLOC_WIDTH + 1, (HAUTEUR_MAP + 4) * BLOC_HEIGHT, "X" + nbVieRestante, "black");
+        //affiche le nombre de pieces ramassées        
+        RectanglePlein(12 * BLOC_WIDTH + 1, (HAUTEUR_MAP + 2) * BLOC_HEIGHT, 5 * BLOC_WIDTH, 2 * BLOC_HEIGHT, 'white');
+        DrawImage(images["piece"], 10 * BLOC_WIDTH, (HAUTEUR_MAP + 2) * BLOC_HEIGHT, 2 * BLOC_WIDTH, 2 * BLOC_HEIGHT);
+        Texte(12 * BLOC_WIDTH + 1, (HAUTEUR_MAP + 4) * BLOC_HEIGHT, "X" + nb_piece, "black");
     }
 }
 
@@ -1225,7 +1234,17 @@ function isGameOver() {
         game_over = true;
         nbVieRestante = NB_VIE_MARIO;
         instant_initial = Date.now();
+        nb_piece = 0;
     }
+}
+
+function ramasser_piece() {
+    nb_piece++;
+    if(nb_piece >= 100){
+        nb_piece -= 100;
+        nbVieRestante++;
+    }
+    
 }
 //</editor-fold>
 
