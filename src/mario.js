@@ -119,7 +119,7 @@ var game_over = false;
  * Indicateur de présence du son
  * @type Boolean
  */
-var play_sound = false;
+var play_sound = true;
 /**
  * Les différentes musiques de mario
  * @type Array
@@ -204,8 +204,10 @@ var bloc = {
  */
 var images = {
     'deco' : 'http://olivier.leliboux.free.fr/mario/img/mario_deco2.png', // image du début du jeu
-    'winner' : 'http://olivier.leliboux.free.fr/mario/img/winner.png', // fin de niveau
-    'level' : 'http://olivier.leliboux.free.fr/mario/img/level.jpg' // nouveau niveau
+    'winner' : 'http://olivier.leliboux.free.fr/mario/img/1up.jpg', // fin de niveau
+    'level' : 'http://olivier.leliboux.free.fr/mario/img/level.jpg', // nouveau niveau
+    'game_over' : 'http://olivier.leliboux.free.fr/mario/img/game_over.png', //game over = 0 vies
+    'vie' : 'http://olivier.leliboux.free.fr/mario/img/coeur.jpg' // image du coeur pour les vies
 };
 /**
  * Les differentes representations de mario
@@ -689,7 +691,9 @@ function interactionMarioPersonnages() {
                         changeMap = true;
                         nbVieRestante--;
                         
-                        playNewSound(musique_vie_perdue);
+                        if (nbVieRestante >= 1) {
+                            playNewSound(musique_vie_perdue);
+                        }
                         isGameOver();
                         break;
                         
@@ -962,7 +966,9 @@ function setMarioLigneColonne() {
         changeMap = true;
         nbVieRestante--;
         
-        playNewSound(musique_vie_perdue);
+        if (nbVieRestante >= 1) {
+            playNewSound(musique_vie_perdue);
+        }
         isGameOver();
     }
 
@@ -1021,16 +1027,18 @@ function setMarioLigneColonne() {
  * @param {object} musique_to_play Musique à jouer
  */
 function playNewSound(musique_to_play) {
+    var duree = 0;
     if (play_sound) {
         musique_fond.pause();
         musique_to_play.play();
 
-        var duree = (musique_to_play.duration - musique_to_play.currentTime) * 1000 ;
+        duree = (musique_to_play.duration - musique_to_play.currentTime) * 1000 ;
 
         setTimeout(function() { 
             musique_fond.play();
         }, duree);
     }
+    return duree;
 }
 
 /**
@@ -1273,12 +1281,13 @@ function draw() {
     } else if(game_over) {
         if (Date.now() - instant_initial < 200) {
             Effacer();
-            DrawImage(images["level"], 14 * BLOC_WIDTH, 0, 22 * BLOC_WIDTH, 22 * BLOC_HEIGHT);
+            DrawImage(images["game_over"], 14 * BLOC_WIDTH, 0, 30 * BLOC_WIDTH, 22 * BLOC_HEIGHT);
+            playNewSound(musique_game_over);
         }
-        if (Date.now() - instant_initial > 2000) {
+        if (Date.now() - instant_initial > 4000) {
             game_over = false;
             start_game = true;
-            instant_initial = Date.now();
+            instant_initial = Date.now();           
         }
     } else { // ici on joue !
         if (changeMap) {
