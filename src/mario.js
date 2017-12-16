@@ -1202,7 +1202,6 @@ function showInformation() {
         //affiche le nombre de vies
         RectanglePlein(2 * BLOC_WIDTH + 1, (HAUTEUR_MAP + 2) * BLOC_HEIGHT, 5 * BLOC_WIDTH, 2 * BLOC_HEIGHT, 'white');
         DrawImage(images["vie"], 0, (HAUTEUR_MAP + 2) * BLOC_HEIGHT, 2 * BLOC_WIDTH, 2 * BLOC_HEIGHT);
-        setCanvasFont('times', '30pt', 'bold');
         Texte(2 * BLOC_WIDTH + 1, (HAUTEUR_MAP + 4) * BLOC_HEIGHT, "X" + nbVieRestante, "black");
         //affiche le nombre de pieces ramassées        
         RectanglePlein(12 * BLOC_WIDTH + 1, (HAUTEUR_MAP + 2) * BLOC_HEIGHT, 5 * BLOC_WIDTH, 2 * BLOC_HEIGHT, 'white');
@@ -1351,6 +1350,11 @@ function runGame() {
  */
 function setup() {
     console.log('----------------- NEW RUN ------------------------');
+    if (SHOW_COORDINATE) {
+        setCanvasFont('times', '9pt', 'normal');
+    } else {
+        setCanvasFont('times', '30pt', 'bold');        
+    }
 }
 
 /**
