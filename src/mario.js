@@ -259,7 +259,7 @@ var zone_map = 0;
  * Nombre d'image par seconde
  * @type Number
  */
-FrameRate = 30;
+FrameRate = 40;
 /**
  * Top depart du jeu en ms
  * @type Number
@@ -411,11 +411,14 @@ var etape_chgt_niveau = "initiale";
  */
 var instant_initial = Date.now();
 /**
- * nombre de vie restante de mario dans une partie
+ * nombre de vie de mario au début du jeu
  * @type Int
  */
 var nbVieRestante = NB_VIE_MARIO;
-
+/**
+ * Nombre de pièces gagnées par mario
+ * @type Int
+ */
 var nb_piece = 0;
 //</editor-fold>
 
@@ -706,7 +709,6 @@ function interactionMarioPersonnages() {
                         // lègèrement grisée. On ne voit aucune différence à l'oeil nu.
                         DrawImage(bloc['~~'], leperso["sg_x"], leperso["sg_y"], BLOC_WIDTH, BLOC_HEIGHT);
                         ramasser_piece();
-                        //playNewSound(musique_piece_or);
                         // bidouille : sans le timeout, mario ne s'affiche pas !
                         setTimeout(function(){ afficherMario(); }, 50);
                         break;
@@ -1006,9 +1008,6 @@ function setMarioLigneColonne() {
             mario_id_x = (mario_id_colonne + 1) * MARIO_WIDTH_SMALL;
             mario_sg_colonne = mario_id_colonne;
             mario_sg_x = mario_id_x - MARIO_WIDTH_SMALL;
-            
-            playNewSound(musique_fin_niveau);
-
             // changement de map
             num_map++;
             nbVieRestante++;
@@ -1028,6 +1027,7 @@ function setMarioLigneColonne() {
 /**
  * Jouer une musique et mettre la musique de fond en pause
  * @param {object} musique_to_play Musique à jouer
+ * @returns {int} Durée du morceau de musique joué
  */
 function playNewSound(musique_to_play) {
     var duree = 0;
@@ -1177,7 +1177,7 @@ function isObstacleVertical() {
 }
 
 /**
- * Affiche les coordonnées de mario à l'écran
+ * Affiche les coordonnées de mario à l'écran ou les infos du jeu
  */
 function showInformation() {
     if (SHOW_COORDINATE) {
@@ -1228,6 +1228,9 @@ function loadGameLevel() {
     afficherMap(tableau_map, zone_map);
 }
 
+/**
+ * Vérifier si mario a perdu
+ */
 function isGameOver() {
     if(nbVieRestante < 1) {
         num_map = 0;
@@ -1235,16 +1238,111 @@ function isGameOver() {
         nbVieRestante = NB_VIE_MARIO;
         instant_initial = Date.now();
         nb_piece = 0;
+        playNewSound(musique_game_over);
     }
 }
 
+/**
+ * Compter les pieces ramassées par mario
+ */
 function ramasser_piece() {
     nb_piece++;
+    //playNewSound(musique_piece_or);
     if(nb_piece >= 100){
         nb_piece -= 100;
         nbVieRestante++;
     }
     
+}
+
+/**
+ * Phase de lancement du jeu
+ */
+function runStartGame() {
+    if (Date.now() - instant_initial < 200) {
+        Effacer();
+        DrawImage(images["deco"], 14 * BLOC_WIDTH, 0, 22 * BLOC_WIDTH, 22 * BLOC_HEIGHT);
+    }
+    if (Date.now() - instant_initial > 2000) {
+        start_game = false;
+        loadGameLevel();
+    }    
+}
+
+/**
+ * Phase de changement de niveau
+ */
+function runChangeLevel() {
+    switch (etape_chgt_niveau) {
+        case "initiale":
+            Effacer();
+            DrawImage(images["winner"], 17 * BLOC_WIDTH, 0, 14 * BLOC_WIDTH, 14 * BLOC_HEIGHT);
+            playNewSound(musique_fin_niveau);
+            etape_chgt_niveau = "suivante";
+            instant_initial = Date.now();
+            break;
+        case "suivante":
+            if (Date.now() - instant_initial > 1000 * musique_fin_niveau.duration / 2) {
+                Effacer();
+                DrawImage(images["level"],15 * BLOC_WIDTH , 2 * BLOC_HEIGHT, 20 * BLOC_WIDTH, 10 * BLOC_HEIGHT);
+                etape_chgt_niveau = "finale";
+                instant_initial = Date.now();
+            }
+            break;
+        case "finale":
+            if (Date.now() - instant_initial > 1000 * musique_fin_niveau.duration / 2) {
+                // initialisation du jeu
+                loadGameLevel();
+                change_niveau = false;
+                etape_chgt_niveau = "initiale";
+            }
+            break;
+        default:
+
+            break;
+    }    
+}
+
+/**
+ * Phase de Game Over
+ */
+function runGameOver() {
+    if (Date.now() - instant_initial < 200) {
+        Effacer();
+        DrawImage(images["game_over"], 14 * BLOC_WIDTH, 0, 30 * BLOC_WIDTH, 22 * BLOC_HEIGHT);
+    }
+    if (Date.now() - instant_initial > musique_game_over.duration * 1000) {
+        game_over = false;
+        start_game = true;
+        instant_initial = Date.now();           
+    }
+}
+
+/**
+ * Phase de jeu
+ */
+function runGame() {
+    if (changeMap) {
+        // Changement de zone de map
+        afficherMap(tableau_map, zone_map);
+        if (isMarioSurLeSol) { // affiche mario quand il change de map au sol
+            afficherMario();
+        }
+        changeMap = false;
+    } else {
+        // Gestion des personnages de la zone de map affichée
+        deplacerPersonnages();
+        effacerPersonnages(zone_map);
+    }
+
+    afficherPersonnages();
+
+    // gestion de mario
+    if (isMarioSurLeSol) {
+        deplacerMario();
+    } else {
+        faireSauterMario();
+    }
 }
 //</editor-fold>
 
@@ -1262,75 +1360,13 @@ function setup() {
 function draw() {
 
     if (start_game) { // démarrage du jeu
-        if (Date.now() - instant_initial < 200) {
-            Effacer();
-            DrawImage(images["deco"], 14 * BLOC_WIDTH, 0, 22 * BLOC_WIDTH, 22 * BLOC_HEIGHT);
-        }
-        if (Date.now() - instant_initial > 2000) {
-            start_game = false;
-            loadGameLevel();
-        }
+        runStartGame();
     } else if (change_niveau) { // changement de niveau
-        switch (etape_chgt_niveau) {
-            case "initiale":
-                Effacer();
-                DrawImage(images["winner"], 17 * BLOC_WIDTH, 0, 14 * BLOC_WIDTH, 14 * BLOC_HEIGHT);
-                etape_chgt_niveau = "suivante";
-                instant_initial = Date.now();
-                break;
-            case "suivante":
-                if (Date.now() - instant_initial > 1000 * musique_fin_niveau.duration / 2) {
-                    Effacer();
-                    DrawImage(images["level"],15 * BLOC_WIDTH , 2 * BLOC_HEIGHT, 20 * BLOC_WIDTH, 10 * BLOC_HEIGHT);
-                    etape_chgt_niveau = "finale";
-                    instant_initial = Date.now();
-                }
-                break;
-            case "finale":
-                if (Date.now() - instant_initial > 1000 * musique_fin_niveau.duration / 2) {
-                    // initialisation du jeu
-                    loadGameLevel();
-                    change_niveau = false;
-                    etape_chgt_niveau = "initiale";
-                }
-                break;
-            default:
-
-                break;
-        }
-    } else if(game_over) {
-        if (Date.now() - instant_initial < 200) {
-            Effacer();
-            DrawImage(images["game_over"], 14 * BLOC_WIDTH, 0, 30 * BLOC_WIDTH, 22 * BLOC_HEIGHT);
-            playNewSound(musique_game_over);
-        }
-        if (Date.now() - instant_initial > 4000) {// 4000 car c'est la durée du son
-            game_over = false;
-            start_game = true;
-            instant_initial = Date.now();           
-        }
+        runChangeLevel();
+    } else if(game_over) { // partie perdue
+        runGameOver();
     } else { // ici on joue !
-        if (changeMap) {
-            // Changement de zone de map
-            afficherMap(tableau_map, zone_map);
-            if (isMarioSurLeSol) { // affiche mario quand il change de map au sol
-                afficherMario();
-            }
-            changeMap = false;
-        } else {
-            // Gestion des personnages de la zone de map affichée
-            deplacerPersonnages();
-            effacerPersonnages(zone_map);
-        }
-
-        afficherPersonnages();
-
-        // gestion de mario
-        if (isMarioSurLeSol) {
-            deplacerMario();
-        } else {
-            faireSauterMario();
-        }
+        runGame();
     }
 }
 
